@@ -1,1 +1,85 @@
 # Golang
+## 型(type)
+* bool
+* int8/int16/int32/int64
+* uint8/uint16/uint32/uint64
+* float32/float64
+* complex64/complex128
+* byte: 1バイトデータ(uint8と同義)
+* rune: 1文字(int32と同義)
+* uint: uint32 or uint64
+* int: int32 or int64
+* uintptr: ポインタを表現するのに十分な非負整数
+* string
+
+## 演算子
+* x + y    加算 (文字列の連結にも利用)
+* x - y    減算
+* x * y    乗算
+* x / y    除算
+* x % y    除算の余り
+* x & y    論理積(AND)
+* x | y    論理和(OR)
+* x ^ y    排他的論理和(XOR)
+* x &^ y    x AND (NOT y)
+* x << y    yビット左にシフト
+* x >> y    yビット右にシフト
+* x = y    xにyを代入
+* x := y    xにyを代入(初期化の使用可能)
+* x++    x = x + 1 と同義
+* x--    x = x - 1 と同義
+* x += y    x = x + y と同義
+* x -= y    x = x - y と同義
+* x *= y    x = x * y と同義
+* x /= y    x = x / y と同義
+* x %= y    x = x % y と同義
+* x &= y    x = x & y と同義
+* x |= y    x = x | y と同義
+* x ^= y    x = x ^ y と同義
+* x &^= y    x = x &^ y と同義
+* x <<= y    x = x << y と同義
+* x >>= y    x = x >> y と同義
+* x && y    xかつy(AND)
+* x || y    xまたはy(OR)
+* !x    xがtrueの場合false/falseの場合true(NOT)
+* x == y    xとyが等しければ
+* x != y    xとyが等しくなければ
+* x < y    yがxより大きければ
+* x < y    yがx以上であれば
+* x > y    yがxより小さければ
+* x >= y    yがx以下であれば
+* ch <- x    chチャネルにxを送信
+* x =<- ch  chチャネルからxに受信
+
+## リテラル・値
+
+* nil  無しを示す特別な値
+* true  真偽値の真
+* false  真偽値の偽
+* 1234  整数
+* 1_234  整数(カンマ区切りの代わりに_を使用。_は無視される)
+* 0777  8進数
+* 0o755  8進数(0Oも可)
+* 0x89ab  16進数(0Xも可)
+* 0b1111  2進数(0Bも可)
+* 123.4  小数
+* 1.23e4  浮動小数点数(1.23E4も可)
+* 1.23i  虚数
+* "ABC"  文字列
+* 'A'  文字(rune)
+
+## エスケープシーケンス
+
+* \a    ベル(U+0007)
+* \b    バックスペース(U+0008)
+* \t    タブ(U+0009)
+* \n    改行(U+000A)
+* \v    垂直タブ(U+000B)
+* \f    フォームフィード(U+000C)
+* \r    キャリッジリターン(U+000D)
+* \"    ダブルクォート(U+0022)
+* \'    シングルクォート(U+0027)
+* \\    バックスラッシュ(U+005C)
+* \x42    ASCII文字(U+0000～U+00FF)
+* \u30A2    Unicode(U+0000～U+FFFF)
+* \U0001F604  Unicode(U+0000～U+10FFFF)
