@@ -10,9 +10,11 @@ func display(str string) {
 	}
 }
 
-// 可変な配列のことをsliceと呼ぶ
+// 可変な配列のことをスライスと呼ぶ
+// 不可変な配列よりもメモリ効率や速度は若干落ちる
 func main() {
 	a1 := []string{}
+	// apendで追加
 	a1 = append(a1, "red")
 	a1 = append(a1, "green")
 	a1 = append(a1, "black")
