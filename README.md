@@ -83,3 +83,48 @@
 * \x42    ASCII文字(U+0000～U+00FF)
 * \u30A2    Unicode(U+0000～U+FFFF)
 * \U0001F604  Unicode(U+0000～U+10FFFF)
+
+## 配列(array)
+個数が決まっていて変更不可のものを配列という
+個数変更できないがメモリ効率がよい
+
+```
+a1 := [3]string{}
+a1[0] = "red"
+a2[1] = "blue"
+a3[2] = "green"
+```
+
+初期化時にあたりを設定することもできる。
+初期化で個数が決まる場合は...と省略可能(3と明示してもおｋ)
+
+```
+a10 := [3]string{"red", "blue", "green"}
+b1 := [...]string{"red", "blue", "green"}
+```
+
+## スライス(slice)
+可変な配列のことをスライスと呼ぶ
+不可変な配列よりもメモリ効率や速度は若干落ちる
+```
+a1 := []string{}
+// apendで追加
+a1 = append(a1, "red")
+a1 = append(a1, "green")
+a1 = append(a1, "black")
+a1 = append(a1, "blue")
+
+// lenは長さ、capは容量を求める
+fmt.Println(len(a1), cap(a1))
+```
+
+makeを用いてメモリの確保が可能。
+容量超過時の再確保を減らして速度を早めることができる
+
+```
+a2 := make([]string, 0, 1024)
+a2 = append(a2, "red")
+a2 = append(a2, "green")
+a2 = append(a2, "black")
+a2 = append(a2, "blue")
+```
