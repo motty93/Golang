@@ -99,7 +99,7 @@ a3[2] = "green"
 初期化で個数が決まる場合は...と省略可能(3と明示してもおｋ)
 
 ```
-a10 := [3]string{"red", "blue", "green"}
+a1 := [3]string{"red", "blue", "green"}
 b1 := [...]string{"red", "blue", "green"}
 ```
 
