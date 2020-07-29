@@ -128,3 +128,13 @@ a2 = append(a2, "green")
 a2 = append(a2, "black")
 a2 = append(a2, "blue")
 ```
+
+### スライスの操作
+`slice_array.go`
+
+|操作|意味|
+|---|---|
+|Slice[start:end]|startからend-1まで|
+|Slice[start:]|startから末尾まで|
+|Slice[:end]|先頭からend-1まで|
+|Slice[:]|先頭から最後まで|
