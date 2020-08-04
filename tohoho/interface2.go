@@ -2,10 +2,12 @@ package main
 
 import "fmt"
 
+// Printable is common type interface
 type Printable interface {
 	ToString() string
 }
 
+// PrintOut is common function insterface with any
 func PrintOut(a interface{}) {
 	// aをPrintableインタフェースを実装したオブジェクトに変換してみる
 	q, ok := a.(Printable)
@@ -29,14 +31,17 @@ func test(a interface{}) {
 	}
 }
 
+// Person is struct
 type Person struct {
 	name string
 }
 
+// ToString is Person function
 func (p Person) ToString() string {
 	return p.name
 }
 
+// Article is struct
 type Article struct {
 	name string
 }
@@ -51,5 +56,4 @@ func main() {
 		"name": "motty",
 		"age":  90,
 	}
-
 }
