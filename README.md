@@ -150,3 +150,19 @@ a2 = append(a2, "blue")
 ### interface {}型
 型のないインタフェース`interface {}`はany型のように使用可能
 `interface2.go`を参照
+
+```
+// 本来の定義方法
+p1 := map[string]int{
+  "x": 10,
+  "y": 200,
+}
+
+// valueを可変に定義できる
+p2 := map[string]interface{}{
+  "name": "motty",
+  "age":  90,
+}
+```
+
+interface{}はanyの用に使えるという特徴を活かし、任意の型の値を持つマップを定義することができる。
