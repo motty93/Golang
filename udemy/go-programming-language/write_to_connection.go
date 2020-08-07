@@ -7,6 +7,8 @@ import (
 	"net"
 )
 
+// go run this file.go
+// telnet http://localhost:8080
 func main() {
 	li, err := net.Listen("tcp", ":8080")
 	if err != nil {
