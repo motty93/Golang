@@ -20,6 +20,15 @@ func (sa secretAgent) speak() {
 	fmt.Println(sa.fname, sa.lname, `says, "Shaken, not stirred."`)
 }
 
+type human interface {
+	speak()
+}
+
+// personとsecretAgentのspeakメソッドを共通化
+func saySomething(h human) {
+	h.speak()
+}
+
 func main() {
 	xi := []int{2, 32, 4, 5, 6}
 	fmt.Println(xi)
@@ -34,7 +43,7 @@ func main() {
 		"Miss",
 		"Moneypenny",
 	}
-	p1.speak()
+	// p1.speak()
 
 	sa1 := secretAgent{
 		person{
@@ -43,6 +52,10 @@ func main() {
 		},
 		true,
 	}
-	sa1.speak()
-	sa1.person.speak()
+	// sa1.speak()
+	// sa1.person.speak()
+
+	saySomething(p1)
+	saySomething(sa1)
+	saySomething(sa1.person)
 }
