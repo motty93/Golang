@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// go run to open browser localhost:8080
 func main() {
 	li, err := net.Listen("tcp", ":8080")
 	if err != nil {
