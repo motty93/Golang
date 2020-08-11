@@ -191,3 +191,49 @@ interface{}はanyの用に使えるという特徴を活かし、任意の型の
 並行処理。
 スレッドよりも高速に並行処理を実現することができます。
 メイン処理を実行しながら別の関数などを並行処理可能。
+
+# golang package
+## netパッケージ
+netパッケージは、TCP/IP、UDP、ドメイン名解決、UNIXドメインソケットと含むUnixネットワークソケットへのポータブルインタフェースを提供する
+
+### 定数
+```
+const (
+  IPv4len = 4
+  IPv6len = 16
+)
+```
+
+### 変数
+
+ウェルノウンIPv4アドレス。
+```
+var (
+    IPv4bcast     = IPv4(255, 255, 255, 255) // ブロードキャスト
+    IPv4allsys    = IPv4(224, 0, 0, 1)       // 全システム
+    IPv4allrouter = IPv4(224, 0, 0, 2)       // 全ルータ
+    IPv4zero      = IPv4(0, 0, 0, 0)         // 全てゼロ
+)
+```
+ウェルノウンIPv6アドレス。
+```
+var (
+    IPzero = make(IP, IPv6len) // all zeros
+)
+```
+
+などなど
+
+次のリンクを参照： http://golang.jp/pkg/net
+
+## io/ioutilパッケージ
+
+`import "io/ioutil"`
+
+### ReadAll関数
+
+`func ReadAll(r io.Reader) ([]byte, os.Error)`
+
+ReadAllはエラーまたはEOFに達するまでrから読み込み、読み込んだデータを返す
+
+次のリンクを参照： http://golang.jp/pkg/io-ioutil
