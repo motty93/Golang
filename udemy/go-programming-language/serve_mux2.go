@@ -30,8 +30,13 @@ func main() {
 	// mux := http.NewServeMux()
 	// mux.Handle("/dog/", d)
 	// mux.Handle("/cat/", c)
-	http.HandleFunc("/dog/", d)
-	http.HandleFunc("/cat/", c)
+
+	// http.HandleFunc("/dog/", d)
+	http.Handle("/dog/", http.HandlerFunc(d))
+
+	// htpp.HandleFunc("/cat/", c)
+	http.Handle("/cat/", http.HandlerFunc(c))
+
 	// path: /cat/something/another
 	http.ListenAndServe(":8080", nil)
 }
