@@ -7,9 +7,10 @@ import (
 	"text/template"
 )
 
+// cd hands_on; go run solutions.go
 func main() {
-	http.Handle("/", http.HandlerFunc(Root))
-	http.Handle("/dog/", http.HandlerFunc(MyDog))
+	http.HandleFunc("/", Root)
+	http.HandleFunc("/dog/", MyDog)
 	http.HandleFunc("/me/", MyName)
 	http.ListenAndServe(":8080", nil)
 }
@@ -28,11 +29,9 @@ func MyDog(w http.ResponseWriter, req *http.Request) {
 func MyName(w http.ResponseWriter, req *http.Request) {
 	tpl, err := template.ParseFiles("something.gohtml")
 	if err != nil {
-		// , errをつけるとあとに具体的なエラー内容が入る
 		log.Fatalln("error parsing template", err)
 	}
-
-	err = tpl.ExecuteTemplate(w, "something.gohtml", "test")
+	err = tpl.ExecuteTemplate(w, "something.gohtml", nil)
 	if err != nil {
 		log.Fatalln("error executing template", err)
 	}
