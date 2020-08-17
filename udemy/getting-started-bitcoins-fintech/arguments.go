@@ -17,4 +17,11 @@ func main() {
 	s := []int{1, 2, 3}
 	fmt.Println(s)
 	foo(s...)
+
+	// 変数に代入しないとキャストできない
+	f := 1.11
+	fmt.Println(int(f))
+
+	m := map[string]int{"Mike": 20, "Nancy": 24, "Messi": 40}
+	fmt.Printf("%T %v\n", m, m)
 }
