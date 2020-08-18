@@ -35,8 +35,6 @@ func New(x, y, z int) *Vertex3D {
 }
 
 func main() {
-	// fmt.Println(Area(v))
-	// v := Vertex{3, 4}
 	v := New(3, 4, 5)
 	v.Scale(10)
 	fmt.Println(v.Area())
