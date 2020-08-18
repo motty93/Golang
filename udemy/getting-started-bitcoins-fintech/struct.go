@@ -43,14 +43,13 @@ func main() {
 	fmt.Println(v5)
 	fmt.Printf("%T %v\n", v5, v5)
 
+	// map, sliceではmakeが推奨されている
 	// v6/v7は同じ意味
 	v6 := new(Vertex)
 	fmt.Printf("%T %v\n", v6, v6)
 	// 明示的にpointerを取得する場合はこっちにする（よく使われる）
 	v7 := &Vertex{}
 	fmt.Printf("%T %v\n", v7, v7)
-
-	// map, sliceはmakeが推奨されている
 
 	test := Vertex{1, 2, "test"}
 	changeVertex(test)
