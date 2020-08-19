@@ -13,9 +13,9 @@ func producer(ch chan int, i int) {
 
 func consumer(ch chan int, wg *sync.WaitGroup) {
 	for i := range ch {
-		// inner functionで何か起こったときに終了できるようにする
 		// fmt.Println("process", i*1000)
 		// wg.Done()
+		// inner functionで何か起こったときに終了できるようにする
 		func() {
 			defer wg.Done()
 			fmt.Println("process", i*1000)
