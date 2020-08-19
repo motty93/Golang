@@ -10,6 +10,11 @@ type Person struct {
 	Age  int
 }
 
+// Stringer defined
+func (p Person) String() string {
+	return fmt.Sprintf("my name is %s", p.Name)
+}
+
 func Say() {
 	fmt.Println("hello")
 }
