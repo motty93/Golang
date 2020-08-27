@@ -22,19 +22,21 @@ type APIClient struct {
 	httpClient *http.Client
 }
 
+// クラスメソッド
 func New(key, secret string) *APIClient {
 	apiClient := &APIClient{key, secret, &http.Client{}}
 	return apiClient
 }
 
+// インスタンスメソッド
 func (api APIClient) header(method, endpoint string, body []byte) map[string]string {
 	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
-	log.Println(timestamp)
 	message := timestamp + method + endpoint + string(body)
 
 	mac := hmac.New(sha25.New, []byte(api.secret))
 	mac.Write([]byte(message))
 	sign := hex.EncodeToString(mac.Sum(nil))
+
 	return map[string]string{
 		"ACCESS-KEY":       api.key,
 		"ACCESS-TIMESTAMP": timestamp,
@@ -53,7 +55,8 @@ func (api *APIClient) doRequest(method, urlPath string, query map[string]string,
 		return
 	}
 	endpoint := baseURL.ResolveReference(apiURL).String()
-	log.Printf("action=doRequest endpoint=%s", endpoint)
+	// log.Printf("action=doRequest endpoint=%s", endpoint)
+
 	req, err := http.NewRequest(method, endpoint, bytes.NewBuffer(data))
 	if err != nil {
 		return
@@ -72,10 +75,12 @@ func (api *APIClient) doRequest(method, urlPath string, query map[string]string,
 		return nil, err
 	}
 	defer res.Body.Close()
+
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
+
 	return body, nil
 }
 
@@ -159,10 +164,29 @@ func (api *APIClient) GetRealTimeTicker(symbol string, ch <-chan Ticker) {
 	errCha := make(chan []byte)
 
 	go pubnub.Subscribe(channel, "", sucCha, false, errCha)
+OUTER:
 	for {
 		select {
 		case res := <-sucCha:
-			fmt.Println(string(res))
+			var tickerList []interface{}
+			if err != json.Unmarshal(res, &tickerList); err != nil {
+				continue OUTER
+			}
+			var ticker Ticker
+			switch tic := tickerList[0].(type) {
+			case []interface{}:
+				if len(tic) == 0 {
+					continue OUTER
+				}
+				marshaTic, err := json.Marshal(tic[0])
+				if err != nil {
+					continue OUTER
+				}
+				if err := json.Unmarshal(marshaTic, &ticker); err != nil {
+					continue OUTER
+				}
+				ch <- ticker
+			}
 		case err := <-errCha:
 			log.Printf("action=GetRealTimeTicker err=%s", err)
 		case <-messaging.SubscribeTimeout():
