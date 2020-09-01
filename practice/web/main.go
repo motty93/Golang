@@ -9,7 +9,7 @@ import (
 
 type Article struct {
 	Title string
-	Body  string
+	Body  template.HTML
 }
 
 var tpl *template.Template
@@ -18,10 +18,16 @@ func init() {
 	tpl = template.Must(template.ParseFiles("template.html"))
 }
 
+func escapeString(html string) (tmpl template.HTML) {
+	tmpl = template.HTML(html)
+
+	return
+}
+
 func helloHandler(rw http.ResponseWriter, req *http.Request) {
 	article := Article{
 		Title: "golang practice",
-		Body:  fmt.Sprintln("<h1>hello golang</h1>"),
+		Body:  escapeString("<h1>hello golang</h1>"),
 	}
 
 	if err := tpl.ExecuteTemplate(rw, "template.html", article); err != nil {
