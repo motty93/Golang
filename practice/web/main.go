@@ -2,55 +2,40 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 )
 
-// 使わないので一旦コメントアウト
-// func ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-// 	switch req.URL.Path {
-// 	case "/dog":
-// 		fmt.Fprintf(rw, "dog dog dog")
-// 	case "/cat":
-// 		fmt.Fprintf(rw, "cat cat cat")
-// 	default:
-// 		fmt.Fprintf(rw, "hello world")
-// 	}
-// }
+type Article struct {
+	Title string
+	Body  string
+}
+
+var tpl *template.Template
+
+func init() {
+	tpl = template.Must(template.ParseFiles("template.html"))
+}
 
 func helloHandler(rw http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(rw, `
-		<!DOCTYPE html>
-		<html lang="en">
-			<head>
-				<meta charset="UTF-8">
-				<title>golang practice</title>
-			</head>
-			<body>
-				<h1>hello golang</h1>
-			</body>
-		</html>
-	`)
+	article := Article{
+		Title: "golang practice",
+		Body:  fmt.Sprintln("<h1>hello golang</h1>"),
+	}
+
+	if err := tpl.ExecuteTemplate(rw, "template.html", article); err != nil {
+		log.Fatalln(err.Error())
+	}
 }
 
 func dogHandler(rw http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(rw, `
-		<!DOCTYPE html>
-		<html lang="en">
-			<head>
-				<meta charset="UTF-8">
-				<title>golang practice</title>
-			</head>
-			<body>
-				<h1>dogs</h1>
-				<h2>dog dog dog</h2>
-			</body>
-		</html>
-	`)
+	fmt.Fprintf(rw, "<h1>dogs</h1><h2>dog dog dog</h2>")
 }
 
 func main() {
 	http.HandleFunc("/hello", helloHandler)
 	http.HandleFunc("/dog", dogHandler)
 
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":3000", nil)
 }
