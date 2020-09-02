@@ -53,6 +53,12 @@ func htmlTemplate(title, body string) (template string) {
 	return
 }
 
+type test int
+
+func (l test) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+	fmt.Fprintf(rw, "test")
+}
+
 func main() {
 	// http.Handle("/", http.HandlerFunc(login))と同じ
 	http.HandleFunc("/", rootHandler)
@@ -60,6 +66,10 @@ func main() {
 	http.HandleFunc("/response", responseHandler)
 	// http.HandleFunc("/welcome", welcome)
 	http.HandleFunc("/welcome/", welcomeHandler) //最後にスラッシュを入れると/welcome/testでも普通に表示される
+
+	// interfaceを使ったServeHTTPのオーバーライド
+	var t test
+	http.Handle("/test", t)
 
 	// http.ListenAndServe("localhost:8080", http.HandlerFunc(ServeHTTP))
 	http.ListenAndServe("localhost:8080", nil) //nilは何もなければ404を返す
