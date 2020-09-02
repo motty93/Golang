@@ -9,25 +9,22 @@ import (
 
 type Article struct {
 	Title string
-	Body  template.HTML
+	Body  string
 }
 
 var tpl *template.Template
 
 func init() {
-	tpl = template.Must(template.ParseFiles("template.html"))
-}
-
-func escapeHTML(html string) (tmpl template.HTML) {
-	tmpl = template.HTML(html)
-
-	return
+	funcMap := template.FuncMap{
+		"safehtml": func(text string) template.HTML { return template.HTML(text) },
+	}
+	tpl = template.Must(template.New("").Funcs(funcMap).ParseFiles("template.html"))
 }
 
 func helloHandler(rw http.ResponseWriter, req *http.Request) {
 	article := Article{
 		Title: "golang practice",
-		Body:  escapeHTML("<h1>hello golang</h1>"),
+		Body:  "<h1>hello golang</h1>",
 	}
 
 	if err := tpl.ExecuteTemplate(rw, "template.html", article); err != nil {
@@ -40,6 +37,7 @@ func dogHandler(rw http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
+	// http.Handle("/hello", http.HandlerFunc(helloHandler))
 	http.HandleFunc("/hello", helloHandler)
 	http.HandleFunc("/dog", dogHandler)
 
