@@ -4,13 +4,19 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo"
 )
 
-type GetResonseData struct {
+type GetResponseData struct {
 	Status int    `json:"status"`
 	Body   string `json:"body"`
+}
+
+type Product struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 func mapResponse(c echo.Context) error {
@@ -23,7 +29,7 @@ func mapResponse(c echo.Context) error {
 }
 
 func structJsonMarshalResponse(c echo.Context) error {
-	data := GetResonseData{
+	data := GetResponseData{
 		Status: http.StatusOK,
 		Body:   "hello echo",
 	}
@@ -38,6 +44,28 @@ func structJsonMarshalResponse(c echo.Context) error {
 	return c.JSON(data.Status, string(bytes))
 }
 
+func productsResponse(c echo.Context) error {
+	data := []map[int]string{{1: "mobiles"}, {2: "tv"}, {3: "laptops"}}
+	var product Product
+	for _, p := range data {
+		for key := range p {
+			pID, err := strconv.Atoi(c.Param("id"))
+			if err != nil {
+				return err
+			}
+			if pID == key {
+				product = Product{Id: key, Name: p[key]}
+			}
+		}
+	}
+	if product.Id == 0 {
+		return c.JSON(http.StatusNotFound, "product not found")
+	}
+	bytes, _ := json.Marshal(product)
+
+	return c.JSON(http.StatusOK, string(bytes))
+}
+
 func main() {
 	e := echo.New()
 
@@ -46,6 +74,7 @@ func main() {
 	})
 	e.GET("/map", mapResponse)
 	e.GET("/struct", structJsonMarshalResponse)
+	e.GET("/products/:id", productsResponse)
 
 	e.Logger.Print("Listening on port 8080...")
 	e.Logger.Fatal(e.Start(":8080"))
