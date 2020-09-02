@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -30,6 +31,7 @@ func structJsonMarshalResponse(c echo.Context) error {
 	if err != nil {
 		data.Status = http.StatusInternalServerError
 	}
+	log.Printf("status: %d", data.Status)
 
 	return c.JSON(data.Status, string(res))
 }
