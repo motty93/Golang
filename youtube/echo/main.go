@@ -12,9 +12,16 @@ type GetResonseData struct {
 	Body   string `json:"body"`
 }
 
-func main() {
-	e := echo.New()
+func mapResponse(c echo.Context) error {
+	resMap := map[string]interface{}{
+		"status": http.StatusOK,
+		"body":   "hello echo",
+	}
 
+	return c.JSON(http.StatusOK, resMap)
+}
+
+func structJsonMarshalResponse(c echo.Context) error {
 	data := GetResonseData{
 		Status: http.StatusOK,
 		Body:   "hello echo",
@@ -24,17 +31,14 @@ func main() {
 		data.Status = http.StatusInternalServerError
 	}
 
-	resMap := map[string]interface{}{
-		"status": http.StatusOK,
-		"body":   "hello echo",
-	}
+	return c.JSON(data.Status, string(res))
+}
 
-	e.GET("/", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, resMap)
-	})
-	e.GET("/struct", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, string(res))
-	})
+func main() {
+	e := echo.New()
+
+	e.GET("/", mapResponse)
+	e.GET("/struct", structJsonMarshalResponse)
 
 	e.Start(":8080")
 }
