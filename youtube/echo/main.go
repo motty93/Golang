@@ -21,6 +21,8 @@ type Product struct {
 	Name string `json:"name"`
 }
 
+var data = []map[int]string{{1: "mobiles"}, {2: "tv"}, {3: "laptops"}}
+
 func mapResponse(c echo.Context) error {
 	resMap := map[string]interface{}{
 		"status": http.StatusOK,
@@ -46,8 +48,11 @@ func structJsonMarshalResponse(c echo.Context) error {
 	return c.JSONBlob(data.Status, bytes)
 }
 
-func productsResponse(c echo.Context) error {
-	data := []map[int]string{{1: "mobiles"}, {2: "tv"}, {3: "laptops"}}
+func productsIndex(c echo.Context) error {
+	return c.JSON(http.StatusOK, data)
+}
+
+func productShow(c echo.Context) error {
 	var product Product
 
 	for _, p := range data {
@@ -70,6 +75,19 @@ func productsResponse(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, bytes)
 }
 
+func productCreate(c echo.Context) error {
+	var reqBody Product
+	if err := c.Bind(&reqBody); err != nil {
+		return err
+	}
+
+	product := map[int]string{
+		len(data) + 1: reqBody.Name,
+	}
+	data = append(data, product)
+	return c.JSON(http.StatusOK, product)
+}
+
 func main() {
 	port := os.Getenv("MY_APP_PORT")
 	if port == "" {
@@ -82,7 +100,9 @@ func main() {
 	})
 	e.GET("/map", mapResponse)
 	e.GET("/struct", structJsonMarshalResponse)
-	e.GET("/products/:id", productsResponse)
+	e.GET("/products", productsIndex)
+	e.GET("/product/:id", productShow)
+	e.POST("/product", productCreate)
 
 	e.Logger.Printf("Listening on port %s...", port)
 	// e.Logger.Fatal(e.Start(":8080"))
