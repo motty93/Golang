@@ -27,13 +27,15 @@ func structJsonMarshalResponse(c echo.Context) error {
 		Status: http.StatusOK,
 		Body:   "hello echo",
 	}
-	res, err := json.Marshal(data)
+	// どっちでもおｋ
+	// bytes, err := json.Marshal(&data)
+	bytes, err := json.Marshal(data)
 	if err != nil {
 		data.Status = http.StatusInternalServerError
 	}
 	log.Printf("status: %d", data.Status)
 
-	return c.JSON(data.Status, string(res))
+	return c.JSON(data.Status, string(bytes))
 }
 
 func main() {
