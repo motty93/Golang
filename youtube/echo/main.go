@@ -17,7 +17,14 @@ func rootHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func loginHandler(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, htmlTemplate("login", "<h1>enter your username and password</h1>"))
+	switch req.Method {
+	case "GET":
+		fmt.Fprintf(w, htmlTemplate("GET", "<h1>Using GET for login endpoint</h1>"))
+	case "POST":
+		fmt.Fprintf(w, htmlTemplate("POST", "<h1>Using POST for login endpoint</h1>"))
+	default:
+		fmt.Fprintf(w, htmlTemplate("login", "<h1>login endpoint</h1>"))
+	}
 }
 
 func welcomeHandler(w http.ResponseWriter, req *http.Request) {
