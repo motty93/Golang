@@ -41,12 +41,13 @@ func structJsonMarshalResponse(c echo.Context) error {
 	}
 	log.Printf("status: %d", data.Status)
 
-	return c.JSON(data.Status, string(bytes))
+	return c.JSONBlob(data.Status, bytes)
 }
 
 func productsResponse(c echo.Context) error {
 	data := []map[int]string{{1: "mobiles"}, {2: "tv"}, {3: "laptops"}}
 	var product Product
+
 	for _, p := range data {
 		for key := range p {
 			pID, err := strconv.Atoi(c.Param("id"))
@@ -58,12 +59,13 @@ func productsResponse(c echo.Context) error {
 			}
 		}
 	}
-	if product.Id == 0 {
-		return c.JSON(http.StatusNotFound, "product not found")
-	}
 	bytes, _ := json.Marshal(product)
+	if product.Id == 0 {
+		// return c.JSONBlob(http.StatusNotFound, bytes)
+		return c.JSON(http.StatusNotFound, map[string]string{"message": "product not found"})
+	}
 
-	return c.JSON(http.StatusOK, string(bytes))
+	return c.JSONBlob(http.StatusOK, bytes)
 }
 
 func main() {
