@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/labstack/echo"
@@ -69,6 +71,10 @@ func productsResponse(c echo.Context) error {
 }
 
 func main() {
+	port := os.Getenv("MY_APP_PORT")
+	if port == "" {
+		port = "8080"
+	}
 	e := echo.New()
 
 	e.GET("/", func(c echo.Context) error {
@@ -78,6 +84,7 @@ func main() {
 	e.GET("/struct", structJsonMarshalResponse)
 	e.GET("/products/:id", productsResponse)
 
-	e.Logger.Print("Listening on port 8080...")
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Printf("Listening on port %s...", port)
+	// e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf("localhost:%s", port)))
 }
