@@ -101,7 +101,7 @@ func main() {
 	e.GET("/map", mapResponse)
 	e.GET("/struct", structJsonMarshalResponse)
 	e.GET("/products", productsIndex)
-	e.GET("/product/:id", productShow)
+	e.GET("/products/:id", productShow)
 	e.POST("/product", productCreate)
 
 	e.Logger.Printf("Listening on port %s...", port)
