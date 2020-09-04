@@ -104,6 +104,15 @@ func main() {
 	e.GET("/products/:id", productShow)
 	e.POST("/product", productCreate)
 
+	e.GET("/tests", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, []string{"mobile", "tv", "oven"})
+	})
+	e.GET("/tests/:vendor", func(c echo.Context) error {
+		// return c.JSON(http.StatusOK, c.Param("vendor"))
+		// query parameterを取得する
+		return c.JSON(http.StatusOK, c.QueryParam("olderThan"))
+	})
+
 	e.Logger.Printf("Listening on port %s...", port)
 	// e.Logger.Fatal(e.Start(":8080"))
 	e.Logger.Fatal(e.Start(fmt.Sprintf("localhost:%s", port)))
