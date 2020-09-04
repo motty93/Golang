@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type GetResponseData struct {
@@ -18,10 +19,25 @@ type GetResponseData struct {
 
 type Product struct {
 	Id   int    `json:"id"`
-	Name string `json:"name"`
+	Name string `json:"name" validate:"required,min=4"`
 }
 
-var data = []map[int]string{{1: "mobiles"}, {2: "tv"}, {3: "laptops"}}
+var (
+	e    *echo.Echo
+	v    *validator.Validate
+	data []map[int]string
+	port string
+)
+
+func init() {
+	e = echo.New()
+	v = validator.New()
+	port = os.Getenv("MY_APP_PORT")
+	data = []map[int]string{{1: "mobiles"}, {2: "tv"}, {3: "laptops"}}
+	if port == "" {
+		port = "8080"
+	}
+}
 
 func mapResponse(c echo.Context) error {
 	resMap := map[string]interface{}{
@@ -80,6 +96,9 @@ func productCreate(c echo.Context) error {
 	if err := c.Bind(&reqBody); err != nil {
 		return err
 	}
+	if err := v.Struct(reqBody); err != nil {
+		return err
+	}
 
 	product := map[int]string{
 		len(data) + 1: reqBody.Name,
@@ -89,12 +108,6 @@ func productCreate(c echo.Context) error {
 }
 
 func main() {
-	port := os.Getenv("MY_APP_PORT")
-	if port == "" {
-		port = "8080"
-	}
-	e := echo.New()
-
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "hello echo framework")
 	})
