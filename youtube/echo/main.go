@@ -86,13 +86,13 @@ func productsIndex(c echo.Context) error {
 
 func productShow(c echo.Context) error {
 	var product Product
+	pID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return err
+	}
 
 	for _, p := range data {
 		for key := range p {
-			pID, err := strconv.Atoi(c.Param("id"))
-			if err != nil {
-				return err
-			}
 			if pID == key {
 				product = Product{ID: key, Name: p[key]}
 			}
