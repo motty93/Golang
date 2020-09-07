@@ -164,6 +164,37 @@ func productUpdate(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, bytes)
 }
 
+func productDelete(c echo.Context) error {
+	var product Product
+	var index int
+	pID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return err
+	}
+
+	for i, p := range data {
+		for key := range p {
+			if pID == key {
+				product = Product{ID: key, Name: p[key]}
+				index = i
+			}
+		}
+	}
+
+	bytes, _ := json.Marshal(product)
+	if product.ID == 0 {
+		// return c.JSONBlob(http.StatusNotFound, bytes)
+		return c.JSON(http.StatusNotFound, map[string]string{"message": "product not found"})
+	}
+	// 該当するidの削除処理
+	splice := func(s []map[int]string, index int) []map[int]string {
+		return append(s[:index], s[index+1:]...)
+	}
+	data = splice(data, index)
+
+	return c.JSONBlob(http.StatusOK, bytes)
+}
+
 func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "hello echo framework")
@@ -174,6 +205,7 @@ func main() {
 	e.GET("/products/:id", productShow)
 	e.POST("/product", productCreate)
 	e.PUT("/products/:id", productUpdate)
+	e.DELETE("/products/:id", productDelete)
 
 	e.GET("/tests", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, []string{"mobile", "tv", "oven"})
