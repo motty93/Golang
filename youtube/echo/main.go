@@ -17,6 +17,7 @@ type GetResponseData struct {
 	Body   string `json:"body"`
 }
 
+// Product echo REST test struct
 type Product struct {
 	ID   int    `json:"id"`
 	Name string `json:"name" validate:"required,min=4"`
@@ -25,6 +26,16 @@ type Product struct {
 	// Website         string `json:"website" validate:"url"`
 	// Country         string `json:"country" validate:"len=2"`
 	// DefaultDeviceIP string `json:"default_device_ip" validate:"ip"`
+}
+
+// ProductValidator echo validator for product
+type ProductValidator struct {
+	validator *validator.Validate
+}
+
+// Validate validates product request body
+func (p *ProductValidator) Validate(i interface{}) error {
+	return p.validator.Struct(i)
 }
 
 var (
@@ -98,11 +109,17 @@ func productShow(c echo.Context) error {
 
 func productCreate(c echo.Context) error {
 	var reqBody Product
+	e.Validator = &ProductValidator{validator: v}
+
 	if err := c.Bind(&reqBody); err != nil {
 		return err
 	}
 	// add params validator
-	if err := v.Struct(reqBody); err != nil {
+	// if err := v.Struct(reqBody); err != nil {
+	// 	return err
+	// }
+	// echo validator
+	if err := c.Validate(reqBody); err != nil {
 		return err
 	}
 
