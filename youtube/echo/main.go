@@ -189,6 +189,8 @@ func productDelete(c echo.Context) error {
 	// 該当するidの削除処理
 	splice := func(s []map[int]string, index int) []map[int]string {
 		return append(s[:index], s[index+1:]...)
+		// [1,2,3,4,5,6]
+		// [1,2] + [4,5,6] = [1,2,4,5,6]
 	}
 	data = splice(data, index)
 
