@@ -18,8 +18,13 @@ type GetResponseData struct {
 }
 
 type Product struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name" validate:"required,min=4"`
+	// Vendor          string `json:"vendor" validate:"min=5,max=10"`
+	// Email           string `json:"email" validate:"required_with=Vendor,email"`
+	// Website         string `json:"website" validate:"url"`
+	// Country         string `json:"country" validate:"len=2"`
+	// DefaultDeviceIP string `json:"default_device_ip" validate:"ip"`
 }
 
 var (
@@ -78,12 +83,12 @@ func productShow(c echo.Context) error {
 				return err
 			}
 			if pID == key {
-				product = Product{Id: key, Name: p[key]}
+				product = Product{ID: key, Name: p[key]}
 			}
 		}
 	}
 	bytes, _ := json.Marshal(product)
-	if product.Id == 0 {
+	if product.ID == 0 {
 		// return c.JSONBlob(http.StatusNotFound, bytes)
 		return c.JSON(http.StatusNotFound, map[string]string{"message": "product not found"})
 	}
@@ -96,6 +101,7 @@ func productCreate(c echo.Context) error {
 	if err := c.Bind(&reqBody); err != nil {
 		return err
 	}
+	// add params validator
 	if err := v.Struct(reqBody); err != nil {
 		return err
 	}
