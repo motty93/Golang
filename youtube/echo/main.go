@@ -80,11 +80,11 @@ func structJsonMarshalResponse(c echo.Context) error {
 	return c.JSONBlob(data.Status, bytes)
 }
 
-func productsIndex(c echo.Context) error {
+func indexProduct(c echo.Context) error {
 	return c.JSON(http.StatusOK, data)
 }
 
-func productShow(c echo.Context) error {
+func showProduct(c echo.Context) error {
 	var product Product
 	pID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -107,7 +107,7 @@ func productShow(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, bytes)
 }
 
-func productCreate(c echo.Context) error {
+func createProduct(c echo.Context) error {
 	var reqBody Product
 	e.Validator = &ProductValidator{validator: v}
 
@@ -130,7 +130,7 @@ func productCreate(c echo.Context) error {
 	return c.JSON(http.StatusOK, product)
 }
 
-func productUpdate(c echo.Context) error {
+func updateProduct(c echo.Context) error {
 	var product Product
 	pID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -164,7 +164,7 @@ func productUpdate(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, bytes)
 }
 
-func productDelete(c echo.Context) error {
+func deleteProduct(c echo.Context) error {
 	var product Product
 	var index int
 	pID, err := strconv.Atoi(c.Param("id"))
@@ -203,11 +203,11 @@ func main() {
 	})
 	e.GET("/map", mapResponse)
 	e.GET("/struct", structJsonMarshalResponse)
-	e.GET("/products", productsIndex)
-	e.GET("/products/:id", productShow)
-	e.POST("/product", productCreate)
-	e.PUT("/products/:id", productUpdate)
-	e.DELETE("/products/:id", productDelete)
+	e.GET("/products", indexProduct)
+	e.GET("/products/:id", showProduct)
+	e.POST("/product", createProduct)
+	e.PUT("/products/:id", updateProduct)
+	e.DELETE("/products/:id", deleteProduct)
 
 	e.GET("/tests", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, []string{"mobile", "tv", "oven"})
