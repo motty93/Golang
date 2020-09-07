@@ -130,6 +130,40 @@ func productCreate(c echo.Context) error {
 	return c.JSON(http.StatusOK, product)
 }
 
+func productUpdate(c echo.Context) error {
+	var product Product
+	pID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return err
+	}
+
+	for _, p := range data {
+		for key := range p {
+			if pID == key {
+				product = Product{ID: key, Name: p[key]}
+			}
+		}
+	}
+
+	if product.ID == 0 {
+		// return c.JSONBlob(http.StatusNotFound, bytes)
+		return c.JSON(http.StatusNotFound, map[string]string{"message": "product not found"})
+	}
+
+	var reqBody Product
+	e.Validator = &ProductValidator{validator: v}
+	if err := c.Bind(&reqBody); err != nil {
+		return err
+	}
+	if err := c.Validate(reqBody); err != nil {
+		return err
+	}
+
+	product.Name = reqBody.Name
+	bytes, _ := json.Marshal(product)
+	return c.JSONBlob(http.StatusOK, bytes)
+}
+
 func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "hello echo framework")
@@ -139,6 +173,7 @@ func main() {
 	e.GET("/products", productsIndex)
 	e.GET("/products/:id", productShow)
 	e.POST("/product", productCreate)
+	e.PUT("/products/:id", productUpdate)
 
 	e.GET("/tests", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, []string{"mobile", "tv", "oven"})
