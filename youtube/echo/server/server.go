@@ -3,8 +3,8 @@ package server
 import (
 	"fmt"
 	"net/http"
-	"os"
 
+	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/labstack/echo"
 	"gopkg.in/go-playground/validator.v9"
 )
@@ -12,12 +12,16 @@ import (
 var e = echo.New()
 var v = validator.New()
 
+func init() {
+	err := cleanenv.ReadEnv(&cfg)
+	fmt.Printf("%+v", cfg)
+	if err != nil {
+		e.Logger.Fatal("Unable to load configuration")
+	}
+}
+
 // Start is routing function
 func Start() {
-	port := os.Getenv("MY_APP_PORT")
-	if port == "" {
-		port = "8080"
-	}
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "hello echo framework")
@@ -39,7 +43,6 @@ func Start() {
 		return c.JSON(http.StatusOK, c.QueryParam("olderThan"))
 	})
 
-	e.Logger.Printf("Listening on port %s...", port)
-	// e.Logger.Fatal(e.Start(":8080"))
-	e.Logger.Fatal(e.Start(fmt.Sprintf("localhost:%s", port)))
+	e.Logger.Printf("Listening on port %s...", cfg.Port)
+	e.Logger.Fatal(e.Start(fmt.Sprintf("localhost:%s", cfg.Port))) // e.Logger.Fatal(e.Start(":8080"))
 }
