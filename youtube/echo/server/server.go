@@ -6,6 +6,7 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"gopkg.in/go-playground/validator.v9"
 )
 
@@ -20,17 +21,41 @@ func init() {
 	}
 }
 
-// Start is routing function
+// type MiddlewareFunc func(HandlerFunc) HandlerFunc
+// type HandlerFunc func(Context) error
+
+func serverMessage(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		fmt.Println("inside serverheader middleware")
+		c.Request().URL.Path = "/krunal"
+		fmt.Printf("%+v\n", c.Request())
+		return next(c)
+	}
+}
+
+func serverMessageDo(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		fmt.Println("inside middleware Do")
+		return next(c)
+	}
+}
+
+// Start starts the application
 func Start() {
+	// e.Use(serverMessage)
+	// e.Pre(serverMessage)
+
+	// スラッシュを削除
+	e.Pre(middleware.RemoveTrailingSlash())
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "hello echo framework")
 	})
 	e.GET("/map", mapResponse)
 	e.GET("/struct", structJsonMarshalResponse)
-	e.GET("/products", indexProduct)
+	e.GET("/products", indexProduct, serverMessageDo) // 複数可能
 	e.GET("/products/:id", showProduct)
-	e.POST("/product", createProduct)
+	e.POST("/product", createProduct, middleware.BodyLimit("2M")) // 2MまでしかBodyは受け付けない
 	e.PUT("/products/:id", updateProduct)
 	e.DELETE("/products/:id", deleteProduct)
 
