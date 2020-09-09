@@ -35,8 +35,9 @@ var iphone10 = Product{
 }
 
 var trimmer = Product{
+	// IDがないと000000000のObjectIDが入る
 	ID:          primitive.NewObjectID(),
-	Name:        "trimmer",
+	Name:        "easy philips trimmer",
 	Price:       120,
 	Currency:    "USD",
 	Quantity:    "400",
@@ -47,23 +48,23 @@ var trimmer = Product{
 
 func main() {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
+
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 	err = client.Connect(ctx)
+
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	db := client.Database("tronics")
 	collection := db.Collection("products")
 	res, err := collection.InsertOne(context.Background(), trimmer)
+
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	fmt.Println(res.InsertedID.(primitive.ObjectID).Timestamp())
 }
