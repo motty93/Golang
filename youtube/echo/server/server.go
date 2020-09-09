@@ -45,7 +45,9 @@ func Start() {
 	// e.Use(serverMessage)
 	// e.Pre(serverMessage)
 
-	// スラッシュを削除
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	// 末尾スラッシュを削除
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	e.GET("/", func(c echo.Context) error {
