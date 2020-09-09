@@ -59,6 +59,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	// なければ作成する
 	db := client.Database("tronics")
 	collection := db.Collection("products")
 	res, err := collection.InsertOne(context.Background(), trimmer)
