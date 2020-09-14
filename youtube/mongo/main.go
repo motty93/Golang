@@ -185,8 +185,39 @@ func main() {
 		fmt.Println(findArray.Name)
 	}
 
+	// Update operator for Field
+	fmt.Println("----- Update Operator for field -----")
+	// 全てのデータにIsEssential: falseを追加
+	updateFieldCon := bson.M{"$set": bson.M{"IsEssential": "false"}}
+	updateFieldRes, err := collection.UpdateMany(context.Background(), bson.M{}, updateFieldCon)
+	fmt.Println(updateFieldRes.ModifiedCount)
+
+	// Update operator for Array
+	fmt.Println("----- Update Operator for array -----")
+	// arrayFilterに該当するデータにmanualを追加
+	updateArrayCon := bson.M{"$addToSet": bson.M{"accessories": "manual"}}
+	updateArrayRes, err := collection.UpdateMany(context.Background(), arrayFilter, updateArrayCon)
+	fmt.Println(updateArrayRes.ModifiedCount)
+
+	// Update operator for field - multiple operators
+	fmt.Println("----- Update Operator for field multiple operators -----")
+	// priceを1.2倍
+	incCon := bson.M{
+		"$mul": bson.M{
+			"price": 1.20,
+		},
+	}
+	incRes, err := collection.UpdateMany(context.Background(), bson.M{}, incCon)
+	fmt.Println(incRes.MatchedCount)
+
+	// Delete operation
+	// fmt.Println("----- Delete operation -----")
+	// arrayFilterに該当するものを全て削除
+	// delRes, err := collection.DeleteMany(context.Background(), arrayFilter)
+	// fmt.Println(delRes.DeletedCount)
+
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(res.InsertedID.(primitive.ObjectID).Timestamp())
+	// fmt.Println(res.InsertedID.(primitive.ObjectID).Timestamp())
 }
