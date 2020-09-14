@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -65,21 +66,18 @@ var speaker = Product{
 
 func main() {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
-
 	if err != nil {
 		fmt.Println(err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 	err = client.Connect(ctx)
-
 	if err != nil {
 		fmt.Println(err)
 	}
-	// なければ作成する
+
 	db := client.Database("tronics")
 	collection := db.Collection("products")
-	// res, err := collection.InsertOne(context.Background(), trimmer)
 	// res, err := collection.InsertOne(context.Background(), bson.D{
 	// 	{"name", "eric"},
 	// 	{"surname", "cartman"},
@@ -91,6 +89,101 @@ func main() {
 	// 	"surname": "cartman",
 	// 	"hobbies": bson.A{"videogame", "alexa", "kfc"},
 	// })
+
+	// **** CREATE ****
+	// Using structs
+	res, err := collection.InsertOne(context.Background(), trimmer)
+	fmt.Println("----- Insert Many Using struct -----")
+	fmt.Println(res.InsertedID)
+
+	// Using bson.D
+	// primitive.Eに注意 Key/Valueを指定する
+	res, err = collection.InsertOne(context.Background(), bson.D{
+		{Key: "name", Value: "eric"},
+		{Key: "surname", Value: "cartman"},
+		{Key: "hobbies", Value: bson.A{"videogame", "alexa", "kfc"}},
+	})
+	fmt.Println("----- Insert Many Using bson.D -----")
+	fmt.Println(res.InsertedID)
+
+	// Using bson.M
+	res, err = collection.InsertOne(context.Background(), bson.M{
+		"name":    "eric",
+		"surname": "cartman",
+		"hobbies": bson.A{"videogame", "alexa", "kfc"},
+	})
+	fmt.Println("----- Insert One Using bson.M -----")
+	fmt.Println(res.InsertedID)
+
+	// Inserting Many documents
+	resMany, err := collection.InsertMany(context.Background(), []interface{}{iphone10, speaker})
+	fmt.Println("----- Insert Many data -----")
+	fmt.Println(resMany.InsertedIDs)
+
+	// **** READ ****
+	// Equality operator using FindOne
+	var findOne Product
+	err = collection.FindOne(context.Background(), bson.M{"price": 900}).Decode(&findOne)
+	fmt.Println("----- Equality Operator using FindOne -----")
+	fmt.Println(findOne)
+
+	// Comparison operator using Find
+	var find Product
+	fmt.Println("----- Comparison operator using Find -----")
+	findCursor, err := collection.Find(context.Background(), bson.M{"price": bson.M{"$gt": 100}})
+	for findCursor.Next(context.Background()) {
+		err := findCursor.Decode(&find)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(find.Name)
+	}
+
+	// Logical operator using Find
+	var findLogic Product
+	logicFilter := bson.M{
+		"$and": bson.A{
+			bson.M{"price": bson.M{"$gt": 100}},
+			bson.M{"quantity": bson.M{"$gt": 30}},
+		},
+	}
+	fmt.Println("----- Logical operator using Find -----")
+	findLogicRes, err := collection.Find(context.Background(), logicFilter)
+	for findLogicRes.Next(context.Background()) {
+		err := findLogicRes.Decode(&findLogic)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(findLogic.Name)
+	}
+
+	// Element operator using Find
+	var findElement Product
+	elementFilter := bson.M{
+		"accessories": bson.M{"$exists": true},
+	}
+	fmt.Println("----- Element operator using Find -----")
+	findElementRes, err := collection.Find(context.Background(), elementFilter)
+	for findElementRes.Next(context.Background()) {
+		err := findElementRes.Decode(&findElement)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(findElement.Name)
+	}
+
+	// Array operator using Find
+	var findArray Product
+	arrayFilter := bson.M{"accessories": bson.M{"$all": bson.A{"charger"}}}
+	fmt.Println("----- Array operator using Find -----")
+	findArrayRes, err := collection.Find(context.Background(), arrayFilter)
+	for findArrayRes.Next(context.Background()) {
+		err := findArrayRes.Decode(&findArray)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(findArray.Name)
+	}
 
 	if err != nil {
 		fmt.Println(err)
