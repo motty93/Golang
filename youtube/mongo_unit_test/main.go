@@ -55,11 +55,11 @@ func findData(collection dbiface.CollectionAPI) ([]User, error) {
 }
 
 func main() {
-	con, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb://localhost:27017"))
+	conn, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
-	db := con.Database("tronics")
+	db := conn.Database("tronics")
 	col := db.Collection("products")
 	user := User{"krunal", "shimpi"}
 
