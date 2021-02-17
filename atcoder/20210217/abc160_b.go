@@ -33,11 +33,7 @@ func readline() string {
 func main() {
 	rdr = bufio.NewReaderSize(os.Stdin, BUFSIZE)
 	j := stoi(readline())
-	if j == 0 {
-		fmt.Println(0)
-	} else {
-		k := j / 500
-		h := (j - k*500) / 5
-		fmt.Printf("%d", k*1000+h*5)
-	}
+	k := j / 500
+	h := (j % 500) / 5
+	fmt.Printf("%d", k*1000+h*5)
 }
