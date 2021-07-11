@@ -9,7 +9,7 @@ new Vue({
     username: null,
     joined: false
   },
-  created: function() {
+  created() {
     var self = this
     this.ws = new WebSocket('ws://' + window.location.host + '/ws')
     this.ws.addEventListener('message', function(e) {
@@ -25,7 +25,7 @@ new Vue({
     })
   },
   methods: {
-    send: function () {
+    send() {
       if (this.newMsg != '') {
         this.ws.send(
           JSON.stringify({
@@ -37,7 +37,7 @@ new Vue({
         this.newMsg = ''
       }
     },
-    join: function () {
+    join() {
       if (!this.email) {
         Materialize.toast('You must enter an email', 2000)
         return
@@ -50,7 +50,7 @@ new Vue({
       this.username = $('<p>').html(this.username).text()
       this.joined = true
     },
-    gravatarURL: function(email) {
+    gravatarURL(email) {
         return 'http://www.gravatar.com/avatar/' + CryptoJS.MD5(email)
     }
   }
