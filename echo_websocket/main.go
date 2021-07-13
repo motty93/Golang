@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
@@ -11,13 +12,15 @@ import (
 var (
 	clients   = make(map[*websocket.Conn]bool)
 	broadcast = make(chan Message)
-	upgrader  = websocket.Upgrader{}
+	upgrader  = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
 )
 
 type Message struct {
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Text     string `json:"text"`
+	Text string `json:"text"`
+	Type int    `json:"type"`
 }
 
 func websocketHandler(c echo.Context) error {
@@ -26,35 +29,35 @@ func websocketHandler(c echo.Context) error {
 		return err
 	}
 	defer ws.Close()
-
-	// 初回メッセージ
-	err = ws.WriteMessage(websocket.TextMessage, []byte("Hello, Client!"))
-	if err != nil {
-		c.Logger().Error(err)
-	}
+	// clientを登録
+	clients[ws] = true
 
 	for {
 		// websocketを介して取得したメッセージの読み取り
-		_, msg, err := ws.ReadMessage()
+		msgType, msg, err := ws.ReadMessage()
 		if err != nil {
+			delete(clients, ws)
 			c.Logger().Error(err)
 		}
-		fmt.Printf("%s\n", msg)
+		fmt.Printf("%s sent: %s\n", ws.RemoteAddr(), string(msg))
 
-		// 受け取ったメッセージをクライアント側へ表示
-		err = ws.WriteMessage(websocket.TextMessage, []byte(msg))
-		if err != nil {
-			c.Logger().Error(err)
-		}
-		// ここから続き
-		// Messageの構造体へmsgを入れbroadcastへ渡す
-		broadcast <- string(msg)
+		broadcast <- Message{Text: string(msg), Type: msgType}
 	}
 }
 
-func handleMessages() {
+func messagesHandler() {
 	for {
-
+		// ブロードキャストチャネルから次のメッセージを受け取る
+		msg := <-broadcast
+		// 接続しているクライアント全てにメッセージの送信
+		for client := range clients {
+			if err := client.WriteMessage(msg.Type, []byte(msg.Text)); err != nil {
+				log.Printf("error: %v", err)
+				client.Close()
+				delete(clients, client)
+				break
+			}
+		}
 	}
 }
 
@@ -64,5 +67,6 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Static("/", "public")
 	e.GET("/ws", websocketHandler)
+	go messagesHandler()
 	e.Logger.Fatal(e.Start(":8080"))
 }
