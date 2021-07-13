@@ -50,7 +50,8 @@ func messagesHandler() {
 		// ブロードキャストチャネルから次のメッセージを受け取る
 		msg := <-broadcast
 		// 接続しているクライアント全てにメッセージの送信
-		clients.Range(func(client, value interface{}) bool {
+		clients.Range(func(k, v interface{}) bool {
+			client := k.(*websocket.Conn)
 			if err := client.WriteMessage(msg.Type, []byte(msg.Text)); err != nil {
 				log.Printf("error: %v", err)
 				client.Close()
@@ -59,13 +60,6 @@ func messagesHandler() {
 			}
 			return true
 		})
-		// for client := range clients {
-		// 	if err := client.WriteMessage(msg.Type, []byte(msg.Text)); err != nil {
-		// 		log.Printf("error: %v", err)
-		// 		client.Close()
-		// 		delete(clients, client)
-		// 	}
-		// }
 	}
 }
 
