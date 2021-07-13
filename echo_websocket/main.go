@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	clients   = make(map[*websocket.Conn]bool)
+	clients   = sync.Map{}
 	broadcast = make(chan Message)
 	upgrader  = websocket.Upgrader{
 		ReadBufferSize:  1024,
@@ -30,16 +30,16 @@ func websocketHandler(c echo.Context) error {
 	}
 	defer ws.Close()
 	// clientを登録
-	clients[ws] = true
+	clients.Store(ws, true)
 
 	for {
 		// websocketを介して取得したメッセージの読み取り
 		msgType, msg, err := ws.ReadMessage()
 		if err != nil {
-			delete(clients, ws)
+			clients.Delete(ws)
 			c.Logger().Error(err)
 		}
-		fmt.Printf("%s sent: %s\n", ws.RemoteAddr(), string(msg))
+		c.Logger().Printf("%s sent: %s\n", ws.RemoteAddr(), string(msg))
 
 		broadcast <- Message{Text: string(msg), Type: msgType}
 	}
@@ -50,14 +50,22 @@ func messagesHandler() {
 		// ブロードキャストチャネルから次のメッセージを受け取る
 		msg := <-broadcast
 		// 接続しているクライアント全てにメッセージの送信
-		for client := range clients {
+		clients.Range(func(client, value interface{}) bool {
 			if err := client.WriteMessage(msg.Type, []byte(msg.Text)); err != nil {
 				log.Printf("error: %v", err)
 				client.Close()
-				delete(clients, client)
-				break
+				clients.Delete(client)
+				return false
 			}
-		}
+			return true
+		})
+		// for client := range clients {
+		// 	if err := client.WriteMessage(msg.Type, []byte(msg.Text)); err != nil {
+		// 		log.Printf("error: %v", err)
+		// 		client.Close()
+		// 		delete(clients, client)
+		// 	}
+		// }
 	}
 }
 
