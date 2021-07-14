@@ -34,15 +34,15 @@ func websocketHandler(c echo.Context) error {
 	clients.Store(ws, true)
 
 	for {
+		var msg Message
 		// websocketを介して取得したメッセージの読み取り
-		msgType, msg, err := ws.ReadMessage()
-		if err != nil {
+		if err := ws.ReadJSON(&msg); err != nil {
 			clients.Delete(ws)
 			c.Logger().Error(err)
 		}
-		c.Logger().Printf("%s sent: %s\n", ws.RemoteAddr(), string(msg))
+		c.Logger().Printf("%s sent: %s", ws.RemoteAddr(), msg.Text)
 
-		broadcast <- Message{Text: string(msg), Type: msgType}
+		broadcast <- msg
 	}
 }
 
@@ -52,8 +52,9 @@ func messagesHandler() {
 		msg := <-broadcast
 		// 接続しているクライアント全てにメッセージの送信
 		clients.Range(func(k, v interface{}) bool {
+			// interface型から*websocket.Connへアサーション
 			client := k.(*websocket.Conn)
-			if err := client.WriteMessage(msg.Type, []byte(msg.Text)); err != nil {
+			if err := client.WriteJSON(msg); err != nil {
 				log.Printf("error: %v", err)
 				client.Close()
 				clients.Delete(client)
