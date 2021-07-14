@@ -1,48 +1,58 @@
-document.addEventListener('DOMContentLoaded', () => {
-  // let loc = window.location;
-  // let uri = 'ws:';
-  //
-  // if (loc.protocol === 'https:') {
-  //   uri = 'wss:';
-  // }
-  //
-  // uri += '//' + loc.host;
-  // uri += loc.pathname + 'ws';
-  let uri = 'ws://localhost:8080/ws'
-  const input = document.getElementById('input');
-  const output = document.getElementById('output');
-  const btn = document.querySelector('.btn');
-  const ws = new WebSocket(uri);
+let ws;
+
+// ページから離脱時に発生
+window.onbeforeunload = () => {
+  console.log('User Leaving.');
+  let jsonData = {};
+  jsonData['action'] = 'left';
+  ws.send(JSON.stringify(jsonData));
+}
+
+function connect() {
+  let loc = window.location;
+  let uri = 'ws:';
+
+  if (loc.protocol === 'https:') {
+    uri = 'wss:';
+  }
+
+  uri += '//' + loc.host;
+  uri += loc.pathname + 'ws';
+  ws = new WebSocket(uri);
 
   ws.onopen = () => {
     console.log('Connected.');
   }
 
-  ws.onmessage = msg => {
-    let data = JSON.parse(msg.data);
-    output.innerHTML += data.text + '<br>';
+  ws.onmessage = e => {
+    let data = JSON.parse(e.data);
+    console.log({data});
+    output.innerHTML += data.message + '<br>';
   }
 
-  ws.onclose = () => {
-    console.log('connection closed.');
+  ws.onclose = e => {
+    console.log('connection closed. 3秒後に再接続します。');
+    setTimeout(() => {
+      connect();
+    }, 3000);
   }
 
   ws.onerror = e => {
     console.log('there was an error.');
+    ws.close();
   }
+}
 
-  // ページから離脱時に発生
-  window.onbeforeunload = function() {
-    console.log('User Leaving.');
-    let jsonData = {};
-    jsonData['action'] = 'left';
-    ws.send(JSON.stringify(jsonData));
-  }
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('input');
+  const output = document.getElementById('output');
+  const btn = document.querySelector('.btn');
+  connect();
 
   btn.addEventListener('click', () => {
     let jsonData = {};
-    jsonData['action'] = 'send';
-    jsonData['text'] = input.value;
+    jsonData['action'] = 'broadcast';
+    jsonData['message'] = input.value;
     ws.send(JSON.stringify(jsonData));
     input.value = '';
   })
