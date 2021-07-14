@@ -11,17 +11,18 @@ import (
 
 var (
 	clients   = sync.Map{}
-	broadcast = make(chan Message)
+	broadcast = make(chan User)
 	upgrader  = websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 	}
 )
 
-type Message struct {
-	Text   string `json:"text"`
-	Type   int    `json:"type"`
-	Action string `json:"action"`
+type User struct {
+	Message string          `json:"message"`
+	Action  string          `json:"action"`
+	Name    string          `json:"name"`
+	Conn    *websocket.Conn `json:"-"`
 }
 
 func websocketHandler(c echo.Context) error {
@@ -34,34 +35,44 @@ func websocketHandler(c echo.Context) error {
 	clients.Store(ws, true)
 
 	for {
-		var msg Message
+		var user User
 		// websocketを介して取得したメッセージの読み取り
-		if err := ws.ReadJSON(&msg); err != nil {
+		if err := ws.ReadJSON(&user); err != nil {
 			clients.Delete(ws)
 			c.Logger().Error(err)
 		}
-		c.Logger().Printf("%s sent: %s", ws.RemoteAddr(), msg.Text)
+		c.Logger().Printf("%s sent: %s", ws.RemoteAddr(), user.Message)
 
-		broadcast <- msg
+		user.Conn = ws
+		broadcast <- user
 	}
 }
 
 func messagesHandler() {
 	for {
 		// ブロードキャストチャネルから次のメッセージを受け取る
-		msg := <-broadcast
+		data := <-broadcast
 		// 接続しているクライアント全てにメッセージの送信
-		clients.Range(func(k, v interface{}) bool {
-			// interface型から*websocket.Connへアサーション
-			client := k.(*websocket.Conn)
-			if err := client.WriteJSON(msg); err != nil {
-				log.Printf("error: %v", err)
-				client.Close()
-				clients.Delete(client)
-				return false
-			}
-			return true
-		})
+		switch data.Action {
+		case "broadcast":
+			clients.Range(func(k, v interface{}) bool {
+				// interface型から*websocket.Connへアサーション
+				client := k.(*websocket.Conn)
+				if err := client.WriteJSON(data); err != nil {
+					log.Printf("error: %v", err)
+					client.Close()
+					clients.Delete(client)
+					return false
+				}
+				return true
+			})
+		case "left":
+			// clientsからconnection ユーザーを削除
+			clients.Delete(data.Conn)
+			data.Conn.Close()
+		case "users":
+			log.Println("all users list")
+		}
 	}
 }
 
