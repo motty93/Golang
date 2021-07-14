@@ -18,8 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Connected.');
   }
 
-  ws.onmessage = e => {
-    output.innerHTML += e.data + '<br>';
+  ws.onmessage = msg => {
+    let data = JSON.parse(msg.data);
+    output.innerHTML += data.text + '<br>';
   }
 
   ws.onclose = () => {
@@ -39,7 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   btn.addEventListener('click', () => {
-    ws.send(input.value);
+    let jsonData = {};
+    jsonData['action'] = 'send';
+    jsonData['text'] = input.value;
+    ws.send(JSON.stringify(jsonData));
     input.value = '';
   })
 });
