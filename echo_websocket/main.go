@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
@@ -10,17 +10,19 @@ import (
 )
 
 var (
-	clients   = make(map[*websocket.Conn]bool)
-	broadcast = make(chan Message)
+	clients   = sync.Map{}
+	broadcast = make(chan User)
 	upgrader  = websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 	}
 )
 
-type Message struct {
-	Text string `json:"text"`
-	Type int    `json:"type"`
+type User struct {
+	Message string          `json:"message"`
+	Action  string          `json:"action"`
+	Name    string          `json:"name"`
+	Conn    *websocket.Conn `json:"-"`
 }
 
 func websocketHandler(c echo.Context) error {
@@ -30,33 +32,47 @@ func websocketHandler(c echo.Context) error {
 	}
 	defer ws.Close()
 	// clientを登録
-	clients[ws] = true
+	clients.Store(ws, true)
 
 	for {
+		var user User
 		// websocketを介して取得したメッセージの読み取り
-		msgType, msg, err := ws.ReadMessage()
-		if err != nil {
-			delete(clients, ws)
+		if err := ws.ReadJSON(&user); err != nil {
+			clients.Delete(ws)
 			c.Logger().Error(err)
+			return err
 		}
-		fmt.Printf("%s sent: %s\n", ws.RemoteAddr(), string(msg))
+		c.Logger().Printf("%s sent: %s", ws.RemoteAddr(), user.Message)
 
-		broadcast <- Message{Text: string(msg), Type: msgType}
+		user.Conn = ws
+		broadcast <- user
 	}
 }
 
 func messagesHandler() {
 	for {
 		// ブロードキャストチャネルから次のメッセージを受け取る
-		msg := <-broadcast
+		data := <-broadcast
 		// 接続しているクライアント全てにメッセージの送信
-		for client := range clients {
-			if err := client.WriteMessage(msg.Type, []byte(msg.Text)); err != nil {
-				log.Printf("error: %v", err)
-				client.Close()
-				delete(clients, client)
-				break
-			}
+		switch data.Action {
+		case "broadcast":
+			clients.Range(func(k, v interface{}) bool {
+				// interface型から*websocket.Connへアサーション
+				client := k.(*websocket.Conn)
+				if err := client.WriteJSON(data); err != nil {
+					log.Printf("error: %v", err)
+					client.Close()
+					clients.Delete(client)
+					return false
+				}
+				return true
+			})
+		case "left":
+			// clientsからconnection ユーザーを削除
+			clients.Delete(data.Conn)
+			data.Conn.Close()
+		case "users":
+			log.Println("all users list")
 		}
 	}
 }
