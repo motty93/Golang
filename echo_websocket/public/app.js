@@ -14,12 +14,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const btn = document.querySelector('.btn');
   const ws = new WebSocket(uri);
 
-  ws.onopen = function() {
-    console.log('Connected');
+  ws.onopen = () => {
+    console.log('Connected.');
   }
 
-  ws.onmessage = function(e) {
+  ws.onmessage = e => {
     output.innerHTML += e.data + '<br>';
+  }
+
+  ws.onclose = () => {
+    console.log('connection closed.');
+  }
+
+  ws.onerror = e => {
+    console.log('there was an error.');
+  }
+
+  // ページから離脱時に発生
+  window.onbeforeunload = function() {
+    console.log('User Leaving.');
+    let jsonData = {};
+    jsonData['action'] = 'left';
+    ws.send(JSON.stringify(jsonData));
   }
 
   btn.addEventListener('click', () => {
