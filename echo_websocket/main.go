@@ -40,6 +40,7 @@ func websocketHandler(c echo.Context) error {
 		if err := ws.ReadJSON(&user); err != nil {
 			clients.Delete(ws)
 			c.Logger().Error(err)
+			return err
 		}
 		c.Logger().Printf("%s sent: %s", ws.RemoteAddr(), user.Message)
 
