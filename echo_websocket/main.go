@@ -19,8 +19,9 @@ var (
 )
 
 type Message struct {
-	Text string `json:"text"`
-	Type int    `json:"type"`
+	Text   string `json:"text"`
+	Type   int    `json:"type"`
+	Action string `json:"action"`
 }
 
 func websocketHandler(c echo.Context) error {
