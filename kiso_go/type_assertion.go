@@ -5,7 +5,12 @@ import "fmt"
 func main() {
 	var i interface{} = "test"
 
-	var s string = i.(string)
+	s1, ok := i.(string)
+	fmt.Println(s1, ok)
 
-	fmt.Println(s)
+	// ランタイムパニックを発生させない
+	s2, ok := i.(interface {
+		dummy()
+	})
+	fmt.Println(s2, ok)
 }
