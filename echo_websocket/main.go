@@ -34,6 +34,8 @@ func websocketHandler(c echo.Context) error {
 	// clientを登録
 	clients.Store(ws, true)
 
+	go pushMessages()
+
 	for {
 		var user User
 		// websocketを介して取得したメッセージの読み取り
@@ -49,7 +51,7 @@ func websocketHandler(c echo.Context) error {
 	}
 }
 
-func messagesHandler() {
+func writeMessages() {
 	for {
 		// ブロードキャストチャネルから次のメッセージを受け取る
 		data := <-broadcast
@@ -79,10 +81,13 @@ func messagesHandler() {
 
 func main() {
 	e := echo.New()
+
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+
 	e.Static("/", "public")
+
 	e.GET("/ws", websocketHandler)
-	go messagesHandler()
+
 	e.Logger.Fatal(e.Start(":8080"))
 }
