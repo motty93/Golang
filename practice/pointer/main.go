@@ -31,4 +31,5 @@ func main() {
 	p3.Name = "jiro"
 	p3.Age = 19
 	fmt.Printf("アドレスを書き換えたp :%+v\n", p)
+	fmt.Printf("p3 :%+v\n", *p3)
 }

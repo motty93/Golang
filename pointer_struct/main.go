@@ -38,6 +38,7 @@ var calc1, calc2 Calc
 func main() {
 	calc1.setValue(10, 30)
 	fmt.Println(Add(calc1))
+	fmt.Println(calc1)
 
 	calc2.setValue(20, 1)
 	fmt.Println(calc2.Add())
