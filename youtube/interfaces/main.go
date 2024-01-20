@@ -13,9 +13,12 @@ type Player interface {
 }
 
 func main() {
-	fbp := model.FootBallPlayer{}
-	fbp.Stamina = 10
-	fbp.Power = 10
+	fbp := model.FootBallPlayer{
+		Stamina: rand.Intn(100),
+		Power:   rand.Intn(100),
+	}
+	fmt.Println(fbp)
+
 	team := make([]Player, 11)
 	for i := 0; i < len(team)-2; i++ {
 		team[i] = model.FootBallPlayer{
@@ -23,6 +26,7 @@ func main() {
 			Power:   rand.Intn(100),
 		}
 	}
+
 	team[len(team)-1] = model.CR7{
 		FootBallPlayer: model.FootBallPlayer{
 			Stamina: rand.Intn(100),
@@ -30,6 +34,7 @@ func main() {
 		},
 		SUI: rand.Intn(100),
 	}
+
 	team[len(team)-2] = model.Messi{
 		FootBallPlayer: model.FootBallPlayer{
 			Stamina: rand.Intn(100),
@@ -37,6 +42,7 @@ func main() {
 		},
 		SUI: rand.Intn(100),
 	}
+
 	for i := 0; i < len(team); i++ {
 		team[i].KickBall()
 		fmt.Printf("%s: %d\n", team[i].Name(), team[i].KickBall())

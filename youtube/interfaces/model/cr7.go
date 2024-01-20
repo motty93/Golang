@@ -5,6 +5,7 @@ type CR7 struct {
 	SUI int
 }
 
+// CR7をpointerにすると、Playerでinterface化できない
 func (c CR7) KickBall() int {
 	return c.Power + c.Stamina*c.SUI
 }
