@@ -12,3 +12,7 @@ func (f FootBallPlayer) KickBall() int {
 func (f FootBallPlayer) Name() string {
 	return "FootBallPlayer"
 }
+
+func (f FootBallPlayer) Run() int {
+	return f.Stamina
+}
