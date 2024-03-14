@@ -9,7 +9,7 @@ import (
 
 func main() {
 	start := time.Now()
-	ctx := context.Background()
+	ctx := context.WithValue(context.Background(), "foo", "bar")
 	val, err := fetchUserData(ctx, 1)
 	if err != nil {
 		log.Fatal(err)
@@ -25,6 +25,8 @@ type Response struct {
 }
 
 func fetchUserData(ctx context.Context, userID int) (int, error) {
+	val := ctx.Value("foo")
+	fmt.Println(val)
 	ctx, cancel := context.WithTimeout(ctx, time.Millisecond*200)
 	defer cancel()
 	respch := make(chan Response)
@@ -45,7 +47,7 @@ func fetchUserData(ctx context.Context, userID int) (int, error) {
 }
 
 func fetchThirdPartyStuffWhichCanBeSlow() (int, error) {
-	time.Sleep(time.Millisecond * 500)
+	time.Sleep(time.Millisecond * 100)
 
 	return 666, nil
 }
