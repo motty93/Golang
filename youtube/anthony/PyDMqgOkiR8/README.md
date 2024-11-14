@@ -1,0 +1,2 @@
+## about
+- Golang struct function
